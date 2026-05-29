@@ -16,6 +16,8 @@ Status: implemented on `codex/persistence-domain-models`.
 
 Add local JSON/CSV ingestion, RSS ingestion, connector interface, validation, cleaning, dedupe, optional language detection, and data quality summaries.
 
+Status: implemented on `codex/ingestion-preprocessing`.
+
 ## PR #4: LLM Client And Structured Analysis
 
 Add OpenAI client abstraction, mock client fixtures, prompt templates, structured sentiment/viewpoint/topic/risk/recommendation services, and mock-mode tests.

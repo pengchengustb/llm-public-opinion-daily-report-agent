@@ -23,6 +23,14 @@ Implemented in the persistence slice:
 - Deterministic Chinese sample data under `data/samples/`.
 - CLI sample seeding through `python -m app seed-sample`.
 
+Implemented in the ingestion/preprocessing slice:
+
+- Local JSON and CSV connectors.
+- RSS/XML connector for feed-style article ingestion.
+- Text cleaning, lightweight language detection, content hashing, and dedupe.
+- Data quality issue persistence and summary counts.
+- CLI ingestion through `python -m app ingest-local <path>`.
+
 Not implemented yet:
 
 - Real OpenAI calls.
@@ -64,6 +72,14 @@ Create local SQLite tables and load deterministic sample data:
 
 ```bash
 python -m app seed-sample
+```
+
+Ingest local sample files:
+
+```bash
+python -m app ingest-local data/samples/local_articles.csv
+python -m app ingest-local data/samples/rss_sample.xml
+python -m app ingest-local data/samples/opinion_sample.json
 ```
 
 ## Testing And Quality

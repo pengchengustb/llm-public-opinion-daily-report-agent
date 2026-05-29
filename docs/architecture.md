@@ -22,6 +22,10 @@ flowchart LR
 
 FastAPI is the system API boundary. PR #1 exposes `/health` and a placeholder module route. Later PRs will add ingestion, analysis, risk, report, and evaluation endpoints.
 
+## Ingestion And Preprocessing
+
+The ingestion layer exposes a connector protocol and concrete local JSON, local CSV, and RSS/XML connectors. Connectors return raw payloads; preprocessing handles text cleaning, lightweight language detection, content hashing, dedupe keys, and data quality issues before persistence.
+
 ## Database
 
 SQLModel is used for Python typing and SQLAlchemy compatibility. SQLite is the local default through `DATABASE_URL`, while PostgreSQL-compatible connection strings are accepted for later deployment.

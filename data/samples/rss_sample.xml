@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Demo RSS Public Opinion Feed</title>
+    <link>https://example.com/rss</link>
+    <description>Deterministic RSS fixture for local ingestion tests.</description>
+    <item>
+      <title>公共热线响应速度受到关注</title>
+      <link>https://example.com/news/hotline-response</link>
+      <guid>rss-article-1</guid>
+      <pubDate>Fri, 29 May 2026 10:00:00 GMT</pubDate>
+      <description>公共热线升级后，网民讨论响应速度是否真正改善，并希望公开更多处理进度。</description>
+    </item>
+  </channel>
+</rss>
