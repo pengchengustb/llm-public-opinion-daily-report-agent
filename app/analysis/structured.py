@@ -21,6 +21,7 @@ from app.db.repositories import Repository
 from app.llm.client import LLMClient, build_llm_client
 from app.llm.contracts import AnalysisInput, EvidenceItem, StructuredAnalysisOutput
 from app.llm.prompts import STRUCTURED_ANALYSIS_PROMPT_VERSION
+from app.risk.service import RiskScoringService
 
 
 def build_analysis_input(
@@ -94,13 +95,15 @@ class StructuredAnalysisService:
         )
         output = self.client.analyze(analysis_input)
         self._persist_output(analysis_run.id, output)
+        scored_risks = RiskScoringService(self.session).score_analysis_run(analysis_run.id)
 
         analysis_run.status = "completed"
         analysis_run.runtime_metadata = {
             **analysis_run.runtime_metadata,
             "completed_at": datetime.now(UTC).isoformat(),
             "sentiment_count": len(output.sentiments),
-            "risk_count": len(output.risks),
+            "risk_count": len(scored_risks),
+            "deterministic_risk_scores": [risk.deterministic_score for risk in scored_risks],
         }
         self.session.add(analysis_run)
         self.session.commit()

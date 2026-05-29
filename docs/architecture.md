@@ -42,6 +42,10 @@ All real provider calls must be implemented under `app/llm`. Other modules depen
 
 The analysis service builds evidence items from persisted articles and comments, sends them through the isolated LLM client, validates strict Pydantic outputs, and persists sentiment results, viewpoints, topic summaries, risk insights, and recommendations with evidence IDs.
 
+## Risk Scoring
+
+The risk layer computes deterministic scores from persisted analysis outputs and source evidence. It combines negative sentiment ratio, topic growth, high-engagement negative comments, sensitive-topic signals, and uncertainty, then writes the score and severity back to `risk_insights`.
+
 ## Dashboard
 
 Streamlit provides the analyst-facing UI. The dashboard is Chinese-facing and uses backend APIs rather than accessing provider SDKs or databases directly.

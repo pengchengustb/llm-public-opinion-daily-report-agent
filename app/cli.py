@@ -38,6 +38,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum articles/comments to read.",
     )
 
+    score_parser = subparsers.add_parser(
+        "score-risks",
+        help="Run deterministic risk scoring for an analysis run.",
+    )
+    score_parser.add_argument("--analysis-run-id", default=None, help="Analysis run to score.")
+
     subparsers.add_parser("doctor", help="Print resolved runtime configuration.")
     return parser
 
@@ -125,4 +131,27 @@ def main() -> None:
         print(
             f"Structured mock analysis complete: run_id={analysis_run.id} "
             f"status={analysis_run.status}"
+        )
+        return
+
+    if args.command == "score-risks":
+        from sqlmodel import Session
+
+        from app.db.session import create_database_engine, create_db_and_tables
+        from app.risk.service import RiskScoringService
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        try:
+            with Session(engine) as session:
+                service = RiskScoringService(session)
+                if args.analysis_run_id:
+                    risks = service.score_analysis_run(args.analysis_run_id)
+                else:
+                    risks = service.score_latest_analysis_run()
+        finally:
+            engine.dispose()
+        print(
+            "Deterministic risk scoring complete: "
+            f"risks={len(risks)} scores={[risk.deterministic_score for risk in risks]}"
         )

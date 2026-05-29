@@ -28,6 +28,8 @@ Status: implemented on `codex/llm-structured-analysis`.
 
 Implement deterministic risk scoring, topic growth, high-engagement negative comment handling, sensitive-topic scoring, uncertainty scoring, and explanations.
 
+Status: implemented on `codex/risk-scoring-trends`.
+
 ## PR #6: Report Generation
 
 Add daily report assembly, Jinja2 templates, Markdown/HTML export, PDF export selection, archive management, and traceability checks.

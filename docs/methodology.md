@@ -22,7 +22,7 @@ Current implementation uses deterministic mock analysis so tests and CI do not r
 
 ## Risk Scoring Direction
 
-Later PRs will calculate:
+The deterministic risk score currently combines:
 
 - Negative sentiment ratio.
 - Topic growth.
@@ -30,6 +30,8 @@ Later PRs will calculate:
 - Sensitive-topic score.
 - Misinformation or uncertainty score.
 - Combined deterministic risk score with Chinese explanation.
+
+The score is bounded to `0-100` and maps to `low`, `medium`, `high`, or `critical` severity. Structured analysis automatically backfills deterministic scores onto persisted risk insights, while `python -m app score-risks` can recompute scores for existing analysis runs.
 
 ## Evidence Traceability
 

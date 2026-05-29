@@ -39,6 +39,12 @@ Implemented in the structured analysis slice:
 - Mock structured analysis service that persists results with evidence IDs.
 - CLI analysis through `python -m app analyze-mock`.
 
+Implemented in the risk scoring slice:
+
+- Deterministic risk scoring from negative ratio, topic growth, high-engagement negative comments, sensitive-topic signals, and uncertainty.
+- Automatic score backfill for structured analysis runs.
+- Re-runnable scoring CLI through `python -m app score-risks`.
+
 Not implemented yet:
 
 - Real OpenAI calls.
@@ -94,6 +100,12 @@ Run deterministic mock structured analysis over persisted articles/comments:
 
 ```bash
 python -m app analyze-mock
+```
+
+Recompute deterministic risk scores for the latest analysis run:
+
+```bash
+python -m app score-risks
 ```
 
 ## Testing And Quality
