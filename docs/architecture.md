@@ -2,79 +2,42 @@
 
 ## Overview
 
-The system is organized as a modular pipeline with API, dashboard, persistence, analysis, reporting, scheduling, and evaluation layers. PR #1 creates the foundation so later PRs can add behavior without restructuring the repository.
+The system uses a modular Python architecture:
 
-```text
-Data Sources
-   |
-   v
-Ingestion Connectors
-   |
-   v
-Preprocessing and Deduplication
-   |
-   v
-SQLModel Persistence
-   |
-   +--> FastAPI Backend
-   +--> Streamlit Dashboard
-   +--> Structured Analysis Layer
-             |
-             v
-       Risk Scoring and Trends
-             |
-             v
-       Daily Report Generation
-             |
-             v
-       Evaluation Suite
+```mermaid
+flowchart LR
+    Sources["Local JSON/CSV and RSS"] --> Ingestion["Ingestion connectors"]
+    Ingestion --> Preprocessing["Validation, cleaning, dedupe"]
+    Preprocessing --> DB[("SQLModel database")]
+    DB --> Analysis["Structured analysis services"]
+    Analysis --> LLM["app/llm boundary"]
+    Analysis --> Risk["Risk scoring and trend analysis"]
+    Risk --> Reporting["Jinja2 report generation"]
+    Reporting --> Archive["Daily report archive"]
+    DB --> Dashboard["Streamlit dashboard"]
+    Archive --> Dashboard
 ```
 
 ## Backend
 
-The backend lives under `app/` and exposes FastAPI routes. PR #1 provides `/health`; later PRs will add routes for sources, documents, analysis runs, risks, and reports.
-
-## Configuration
-
-`app/config/settings.py` centralizes environment configuration using Pydantic settings. `.env.example` documents safe local defaults. Real secrets must be supplied outside version control.
+FastAPI is the system API boundary. PR #1 exposes `/health` and a placeholder module route. Later PRs will add ingestion, analysis, risk, report, and evaluation endpoints.
 
 ## Database
 
-`app/db/models.py` defines initial SQLModel entities:
+SQLModel is used for Python typing and SQLAlchemy compatibility. SQLite is the local default through `DATABASE_URL`, while PostgreSQL-compatible connection strings are accepted for later deployment.
 
-- `Source`
-- `RawDocument`
-- `ProcessedDocument`
-- `AnalysisRun`
+Persisted entities include sources, ingestion batches, articles, comments, data quality records, analysis runs, sentiment results, viewpoints, topic summaries, risk insights, recommendations, reports, evaluation runs, and evaluation metrics.
 
-These models establish source traceability and run metadata before ingestion and analysis are implemented.
-
-## Schemas
-
-`app/schemas/analysis.py` defines structured analysis contracts for future LLM output:
-
-- sentiment labels
-- risk taxonomy
-- evidence references
-- viewpoint results
-- risk finding results
-- top-level structured analysis output
-
-Every sentiment conclusion requires at least one source document ID.
+The current repository provides lightweight repository helpers for CRUD-style persistence tests and early services. Full query services can be added only when a downstream module needs them.
 
 ## LLM Boundary
 
-The `app/llm/` package is reserved for provider integration, prompt templates, mock mode, structured parsing, and token/model logging. Real LLM calls are not implemented in PR #1.
+All real provider calls must be implemented under `app/llm`. Other modules depend on contracts and client interfaces, not provider SDKs. PR #1 provides a mock client and structured output schemas only.
 
 ## Dashboard
 
-The Streamlit dashboard lives under `dashboard/`. PR #1 provides a home page and placeholder pages that will be expanded as ingestion, analysis, reports, and evaluation land.
+Streamlit provides the analyst-facing UI. The dashboard is Chinese-facing and uses backend APIs rather than accessing provider SDKs or databases directly.
 
-## Deployment
+## Reporting
 
-Docker Compose runs two services:
-
-- `backend` on port `8000`
-- `dashboard` on port `8501`
-
-The compose stack uses local SQLite storage under `./data` for the foundation stage. A PostgreSQL service can be introduced when migrations and production persistence are added.
+Later PRs will assemble report data from database records and render Markdown/HTML through Jinja2. PDF export is intentionally deferred until report templates are stable.

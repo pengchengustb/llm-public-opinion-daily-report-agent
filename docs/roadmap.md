@@ -1,49 +1,45 @@
-# Implementation Roadmap
+# Roadmap
 
-## PR 1: Foundation
+## PR #1: Project Foundation
 
-Backend skeleton, dashboard skeleton, database models, settings, logging, tests, Docker Compose, CI, README, PRD, architecture docs, and contributor instructions.
+Create packaging, FastAPI skeleton, Streamlit skeleton, database config, initial schemas, configuration/logging, pytest, Docker Compose, CI, README, documentation, and agent guidance.
 
-## PR 2: Ingestion
+Status: implemented on `codex/project-foundation`.
 
-Connector abstraction, local JSON ingestion, RSS ingestion, raw document persistence, fixtures, and tests.
+## PR #2: Persistence And Domain Models
 
-## PR 3: Preprocessing
+Complete SQLModel schema, repository/session helpers, seed samples, and persistence tests.
 
-Cleaning, normalization, hashing, deduplication, processed document persistence, and tests.
+Status: implemented on `codex/persistence-domain-models`.
 
-## PR 4: LLM Abstraction
+## PR #3: Ingestion And Preprocessing
 
-Provider boundary, mock client, prompt versions, structured parser, token/model logging, and tests.
+Add local JSON/CSV ingestion, RSS ingestion, connector interface, validation, cleaning, dedupe, optional language detection, and data quality summaries.
 
-## PR 5: Structured Analysis
+## PR #4: LLM Client And Structured Analysis
 
-Sentiment, viewpoint, risk extraction, evidence traceability, validated persistence, and tests.
+Add OpenAI client abstraction, mock client fixtures, prompt templates, structured sentiment/viewpoint/topic/risk/recommendation services, and mock-mode tests.
 
-## PR 6: Risk Scoring and Trends
+## PR #5: Risk Scoring And Trend Analysis
 
-Risk formula, trend aggregation, risk ranking, source-backed explanations, and tests.
+Implement deterministic risk scoring, topic growth, high-engagement negative comment handling, sensitive-topic scoring, uncertainty scoring, and explanations.
 
-## PR 7: Reporting
+## PR #6: Report Generation
 
-Markdown and HTML reports, templates, report artifacts, and deterministic output tests.
+Add daily report assembly, Jinja2 templates, Markdown/HTML export, PDF export selection, archive management, and traceability checks.
 
-## PR 8: PDF Export
+## PR #7: Dashboard
 
-PDF rendering and artifact validation.
+Build date selector, sentiment charts, topic ranking, risk ranking, representative evidence, run status, and report download views.
 
-## PR 9: FastAPI Resources
+## PR #8: Automation
 
-Routes for sources, documents, analysis runs, risks, and reports.
+Add daily scheduled command, structured logs, failure handling, reproducible commands, and Docker documentation.
 
-## PR 10: Dashboard Expansion
+## PR #9: Evaluation Suite
 
-Risk overview, source explorer, evidence drill-down, analysis runs, and report archive.
+Implement benchmark runners, metric calculations, sample gold datasets, `evaluation_report.md`, and CI-friendly mock evaluation.
 
-## PR 11: Scheduling
+## PR #10: Hardening And Portfolio Polish
 
-Daily CLI pipeline, scheduler integration, idempotent runs, and Docker service support.
-
-## PR 12+: Evaluation and Research Docs
-
-Gold dataset, baselines, metrics, error analysis, methodology, limitations, and final deployment docs.
+Improve docs, examples, screenshots, error handling, deployment notes, and final validation checklist.

@@ -1,100 +1,72 @@
 # LLM-enhanced Public Opinion Monitoring and Daily Risk Report Generation System
 
-This repository contains the foundation for a master's-level public opinion monitoring system. The final system is designed to ingest multi-source public opinion data, clean and deduplicate documents, persist source-traceable records, run structured LLM-assisted analysis, score public risks, generate Markdown/HTML/PDF daily reports, expose a FastAPI backend, and provide a Streamlit dashboard.
+This repository is the foundation for a master's-level system that ingests news articles and user comments, analyzes public opinion with LLM-assisted structured workflows, detects sentiment and risks, and generates daily risk reports. PR #1 intentionally creates the extensible architecture without implementing real LLM calls, scraping, or PDF export yet.
 
-PR #1 establishes the production-ready project foundation. Real scraping and real LLM provider calls are intentionally deferred to later coherent PRs.
+User-facing dashboard and generated report text are planned primarily in Chinese. Code, schemas, and repository documentation use English for maintainability.
 
-## Current Capabilities
+## Current Scope
+
+Implemented in the foundation slice:
 
 - FastAPI backend skeleton with `/health`.
-- Streamlit dashboard skeleton that checks backend health.
-- Pydantic settings and schema foundation.
-- SQLModel database configuration and initial durable entities.
-- Logging setup.
-- Pytest suite for settings, schemas, database metadata, and API health.
-- Docker Compose for running backend and dashboard together.
-- GitHub Actions CI for linting, testing, and compilation.
-- Documentation for product requirements and architecture.
+- Streamlit dashboard skeleton with backend health status and planned pages.
+- Typed configuration and logging setup.
+- SQLite-first database foundation with PostgreSQL-compatible configuration.
+- Core schemas for articles, comments, analysis runs, sentiment, viewpoints, risks, and daily reports.
+- Isolated `app/llm` boundary with deterministic mock client placeholder.
+- pytest, Ruff, Docker Compose, GitHub Actions CI, and project documentation.
 
-## Architecture Snapshot
+Implemented in the persistence slice:
 
-```text
-sources -> ingestion -> preprocessing -> database -> analysis -> risk scoring -> reports
-                                      |               |             |
-                                      v               v             v
-                                  FastAPI        Streamlit      evaluation
-```
+- Complete SQLModel table coverage for ingestion batches, data quality records, topic summaries, recommendations, reports, and evaluation metrics.
+- Lightweight repository helpers for early service code and tests.
+- Deterministic Chinese sample data under `data/samples/`.
+- CLI sample seeding through `python -m app seed-sample`.
 
-The first PR implements the framework around this architecture, not the full pipeline behavior.
+Not implemented yet:
 
-## Requirements
+- Real OpenAI calls.
+- Real scraping or RSS ingestion.
+- Full analysis, scoring, report generation, or PDF export.
+- Production dashboard charts and downloads.
 
-- Python 3.11+
-- Docker and Docker Compose, optional but recommended
-
-## Local Setup
+## Quickstart
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+.venv\Scripts\activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
-cp .env.example .env
+copy .env.example .env
 ```
 
-## Run the Backend
+Run the backend:
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+python -m app api --reload
 ```
 
-Health check:
+Open the backend health check:
 
 ```bash
 curl http://localhost:8000/health
 ```
 
-Expected response shape:
-
-```json
-{
-  "status": "ok",
-  "service": "Public Opinion Daily Report Agent",
-  "version": "0.1.0",
-  "environment": "local"
-}
-```
-
-## Run the Dashboard
-
-In a separate terminal after starting the backend:
+Run the dashboard in another terminal:
 
 ```bash
-streamlit run dashboard/Home.py
+streamlit run dashboard/app.py
 ```
 
-Open <http://localhost:8501>.
+Then open `http://localhost:8501`.
 
-## Run with Docker Compose
+Create local SQLite tables and load deterministic sample data:
 
 ```bash
-docker compose up --build
+python -m app seed-sample
 ```
 
-Services:
-
-- Backend: <http://localhost:8000>
-- Dashboard: <http://localhost:8501>
-
-Stop services:
-
-```bash
-docker compose down
-```
-
-Docker Compose uses `.env.example` defaults and stores local SQLite data under `./data`.
-
-## Testing and Quality Checks
+## Testing And Quality
 
 ```bash
 pytest
@@ -102,34 +74,53 @@ ruff check .
 python -m compileall app tests dashboard
 ```
 
+Some tests import optional runtime dependencies and are skipped automatically if the local environment has not installed the project dependencies. In CI, dependencies are installed with `python -m pip install -e ".[dev]"`, so backend and schema smoke tests run normally.
+
+## Docker Compose
+
+Validate the Compose file:
+
+```bash
+docker compose config
+```
+
+Start backend and dashboard:
+
+```bash
+docker compose up --build
+```
+
+Services:
+
+- Backend: `http://localhost:8000`
+- Dashboard: `http://localhost:8501`
+
+Runtime database files are stored under `data/generated/`, and generated reports will be stored under `reports/`. Both are gitignored.
+
 ## Configuration
 
-Configuration is loaded from environment variables and `.env` via `app/config/settings.py`. `.env.example` documents all non-secret defaults. Do not commit real secrets.
+Copy `.env.example` to `.env` for local development. Important settings:
 
-Important variables:
+- `DATABASE_URL`: defaults to SQLite at `data/generated/opinion_monitor.db`.
+- `LLM_MOCK_MODE`: defaults to `true`; real LLM calls are intentionally deferred.
+- `OPENAI_API_KEY`: documented but unused until the real LLM client PR.
+- `REPORT_LANGUAGE`: defaults to `zh-CN`.
 
-- `DATABASE_URL` — defaults to SQLite for local development.
-- `LLM_PROVIDER` — defaults to `mock`; real LLM calls are not implemented yet.
-- `LLM_MODEL` — currently a mock model identifier.
-- `BACKEND_URL` — dashboard backend target.
+Never commit `.env` or secrets.
 
-## Roadmap
+## Architecture Direction
 
-1. Project foundation, config, DB, API, dashboard skeleton, CI, Docker.
-2. Ingestion connector abstraction and local/RSS ingestion.
-3. Cleaning, normalization, deduplication.
-4. LLM abstraction, mock mode, prompt versioning.
-5. Sentiment, viewpoint, risk, and evidence extraction.
-6. Risk scoring and trend aggregation.
-7. Markdown/HTML/PDF report generation.
-8. Full Streamlit monitoring dashboard.
-9. Daily scheduler and idempotent pipeline runs.
-10. Evaluation suite, baselines, metrics, and research documentation.
+The repository is organized around stable boundaries:
 
-## Known Limitations in PR #1
+- `app/api`: FastAPI routers.
+- `app/core`: config, logging, shared runtime helpers.
+- `app/db`: SQLModel engine/session and persistence models.
+- `app/ingestion`: local/RSS/source connectors in later PRs.
+- `app/preprocessing`: validation, cleaning, dedupe, quality summaries.
+- `app/llm`: the only allowed boundary for LLM provider calls.
+- `app/analysis`: sentiment, viewpoint, topic, recommendation services.
+- `app/risk`: deterministic scoring and trend analysis.
+- `app/reporting`: Markdown/HTML/PDF report generation.
+- `app/evaluation`: benchmarks and evaluation reports.
 
-- No real scraping or ingestion connectors are implemented.
-- No real LLM provider calls are implemented.
-- Dashboard pages are placeholders.
-- Alembic migrations are not introduced yet; local development creates SQLModel tables on startup.
-- Report generation and evaluation are planned but not implemented.
+See `docs/architecture.md` and `docs/roadmap.md` for the complete plan.

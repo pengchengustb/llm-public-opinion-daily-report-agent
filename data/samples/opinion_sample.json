@@ -1,0 +1,48 @@
+{
+  "source": {
+    "id": "source-demo-local-news",
+    "name": "Demo Local News",
+    "source_type": "local_json",
+    "uri": "data/samples/opinion_sample.json",
+    "trust_tier": "demo",
+    "enabled": true,
+    "source_metadata": {
+      "language": "zh-CN",
+      "purpose": "deterministic seed data for persistence tests"
+    }
+  },
+  "articles": [
+    {
+      "external_id": "article-demo-1",
+      "id": "article-demo-1",
+      "title": "市民关注公共服务平台升级",
+      "url": "https://example.com/news/public-service-upgrade",
+      "author": "Demo Reporter",
+      "published_at": "2026-05-28T09:00:00Z",
+      "raw_text": "公共服务平台升级后，部分市民认为办理效率提升，也有用户担心高峰期稳定性。",
+      "cleaned_text": "公共服务平台升级后，市民关注效率提升与高峰期稳定性。",
+      "language": "zh-CN",
+      "content_hash": "demo-article-000000000000000000000000000000000000000000000001",
+      "engagement": {
+        "views": 1200,
+        "shares": 34
+      }
+    }
+  ],
+  "comments": [
+    {
+      "id": "comment-demo-1",
+      "article_external_id": "article-demo-1",
+      "platform": "demo_forum",
+      "author_alias": "user_a",
+      "published_at": "2026-05-28T10:30:00Z",
+      "raw_text": "希望升级后真的能减少排队时间。",
+      "cleaned_text": "希望升级后能减少排队时间。",
+      "language": "zh-CN",
+      "content_hash": "demo-comment-000000000000000000000000000000000000000000000001",
+      "like_count": 18,
+      "reply_count": 2,
+      "share_count": 1
+    }
+  ]
+}
