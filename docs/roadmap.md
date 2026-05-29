@@ -22,6 +22,8 @@ Status: implemented on `codex/ingestion-preprocessing`.
 
 Add OpenAI client abstraction, mock client fixtures, prompt templates, structured sentiment/viewpoint/topic/risk/recommendation services, and mock-mode tests.
 
+Status: implemented on `codex/llm-structured-analysis`.
+
 ## PR #5: Risk Scoring And Trend Analysis
 
 Implement deterministic risk scoring, topic growth, high-engagement negative comment handling, sensitive-topic scoring, uncertainty scoring, and explanations.

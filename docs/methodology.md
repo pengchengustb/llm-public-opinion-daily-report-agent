@@ -18,6 +18,8 @@ Current implementation supports deterministic local JSON/CSV/RSS ingestion throu
 4. Store analysis outputs with prompt versions and evidence IDs.
 5. Combine deterministic metrics with LLM explanations.
 
+Current implementation uses deterministic mock analysis so tests and CI do not require network access or secrets. Real OpenAI integration must keep the same contracts and remain isolated under `app/llm`.
+
 ## Risk Scoring Direction
 
 Later PRs will calculate:

@@ -36,7 +36,11 @@ The current repository provides lightweight repository helpers for CRUD-style pe
 
 ## LLM Boundary
 
-All real provider calls must be implemented under `app/llm`. Other modules depend on contracts and client interfaces, not provider SDKs. PR #1 provides a mock client and structured output schemas only.
+All real provider calls must be implemented under `app/llm`. Other modules depend on contracts and client interfaces, not provider SDKs. The current implementation provides deterministic mock structured analysis and an OpenAI client abstraction that intentionally refuses real calls until the provider integration PR.
+
+## Structured Analysis
+
+The analysis service builds evidence items from persisted articles and comments, sends them through the isolated LLM client, validates strict Pydantic outputs, and persists sentiment results, viewpoints, topic summaries, risk insights, and recommendations with evidence IDs.
 
 ## Dashboard
 

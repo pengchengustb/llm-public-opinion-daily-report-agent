@@ -31,6 +31,14 @@ Implemented in the ingestion/preprocessing slice:
 - Data quality issue persistence and summary counts.
 - CLI ingestion through `python -m app ingest-local <path>`.
 
+Implemented in the structured analysis slice:
+
+- Isolated LLM client interface with deterministic mock mode.
+- OpenAI client abstraction that refuses real calls until the provider PR.
+- Strict Pydantic contracts for structured sentiment, viewpoints, topics, risks, recommendations, and daily report analysis.
+- Mock structured analysis service that persists results with evidence IDs.
+- CLI analysis through `python -m app analyze-mock`.
+
 Not implemented yet:
 
 - Real OpenAI calls.
@@ -80,6 +88,12 @@ Ingest local sample files:
 python -m app ingest-local data/samples/local_articles.csv
 python -m app ingest-local data/samples/rss_sample.xml
 python -m app ingest-local data/samples/opinion_sample.json
+```
+
+Run deterministic mock structured analysis over persisted articles/comments:
+
+```bash
+python -m app analyze-mock
 ```
 
 ## Testing And Quality
@@ -134,7 +148,7 @@ The repository is organized around stable boundaries:
 - `app/ingestion`: local/RSS/source connectors in later PRs.
 - `app/preprocessing`: validation, cleaning, dedupe, quality summaries.
 - `app/llm`: the only allowed boundary for LLM provider calls.
-- `app/analysis`: sentiment, viewpoint, topic, recommendation services.
+- `app/analysis`: sentiment, viewpoint, topic, risk, and recommendation services.
 - `app/risk`: deterministic scoring and trend analysis.
 - `app/reporting`: Markdown/HTML/PDF report generation.
 - `app/evaluation`: benchmarks and evaluation reports.

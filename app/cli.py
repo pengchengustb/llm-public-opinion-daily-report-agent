@@ -27,6 +27,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ingest_parser.add_argument("path", help="Path to a local .json, .csv, .rss, or .xml file.")
 
+    analyze_parser = subparsers.add_parser(
+        "analyze-mock",
+        help="Run deterministic structured analysis over persisted evidence.",
+    )
+    analyze_parser.add_argument(
+        "--limit",
+        type=int,
+        default=50,
+        help="Maximum articles/comments to read.",
+    )
+
     subparsers.add_parser("doctor", help="Print resolved runtime configuration.")
     return parser
 
@@ -94,3 +105,24 @@ def main() -> None:
         finally:
             engine.dispose()
         print(result.model_dump_json(indent=2))
+        return
+
+    if args.command == "analyze-mock":
+        from sqlmodel import Session
+
+        from app.analysis.structured import StructuredAnalysisService
+        from app.db.session import create_database_engine, create_db_and_tables
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        try:
+            with Session(engine) as session:
+                analysis_run = StructuredAnalysisService(session, settings).analyze_recent_evidence(
+                    limit=args.limit,
+                )
+        finally:
+            engine.dispose()
+        print(
+            f"Structured mock analysis complete: run_id={analysis_run.id} "
+            f"status={analysis_run.status}"
+        )
