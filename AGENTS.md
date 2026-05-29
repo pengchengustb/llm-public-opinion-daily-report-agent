@@ -32,9 +32,19 @@ The system must support:
 - Use SQLModel or SQLAlchemy for database models.
 - Use pytest for tests.
 - Use Docker Compose for reproducible local deployment.
-- Keep OpenAI API calls isolated in a dedicated llm module.
+- Keep OpenAI API calls isolated in a dedicated `app/llm` module.
 - Never hard-code secrets.
-- Use .env.example for configuration documentation.
+- Use `.env.example` for configuration documentation.
+- Prefer modular packages over one-off scripts.
+- Keep deterministic mock paths for tests.
+
+## Repository Layout Standards
+
+- `app/` contains backend, pipeline, schemas, persistence, and analysis modules.
+- `dashboard/` contains Streamlit pages and components.
+- `docs/` contains architecture, PRD, methodology, deployment, and evaluation documentation.
+- `tests/` contains pytest unit and integration tests.
+- `data/` and `reports/` may contain `.gitkeep` placeholders, but generated runtime artifacts should not be committed unless explicitly documented as fixtures.
 
 ## AI Analysis Standards
 
@@ -44,6 +54,7 @@ The system must support:
 - Keep prompt templates versioned.
 - Include mock mode for tests.
 - Log model name, prompt version, token usage, and analysis run ID.
+- Do not implement provider-specific LLM calls outside `app/llm`.
 
 ## Research Standards
 
@@ -59,7 +70,7 @@ The project should include:
 ## Pull Request Standards
 
 Each PR must:
-- implement one coherent module
+- implement one coherent module or foundation slice
 - include or update tests
 - update README/docs if behavior changes
 - pass pytest
