@@ -1,68 +1,79 @@
 # AGENTS.md
 
-## Project
+## Project Goal
 
-This repository builds an LLM Public Opinion Daily Report Agent.
+This repository implements a master's-level LLM-enhanced Public Opinion Monitoring and Daily Risk Report Generation System.
 
-The agent should:
-- ingest daily news articles and user comments
-- summarize core viewpoints and arguments
-- classify positive, neutral, and negative sentiment
-- detect public relations risks
-- generate actionable recommendations
-- export daily reports in Markdown and PDF
+The project is not a toy MVP. It should be a complete, usable, well-documented, and evaluable system.
 
-## Working style
+## Core Requirements
 
-- Work in small milestones.
-- Prefer one milestone per pull request.
-- Before coding a large change, produce a plan.
-- Do not make large architectural changes without explaining them.
-- Keep the implementation simple and suitable for an MVP.
+The system must support:
+- multi-source data ingestion
+- data cleaning and deduplication
+- persistent storage
+- LLM-based structured analysis
+- sentiment analysis
+- viewpoint extraction
+- risk classification and scoring
+- evidence traceability
+- Markdown, HTML, and PDF report generation
+- dashboard visualization
+- scheduled daily execution
+- evaluation suite
+- reproducible deployment
 
-## Tech stack
+## Engineering Standards
 
-- Python 3.11+
-- pydantic for schemas
-- typer for CLI
-- pytest for tests
-- Jinja2 for Markdown report rendering
-- Markdown as the canonical report format
-- PDF export can be implemented after Markdown reporting works
+- Use Python 3.11+.
+- Use FastAPI for backend APIs.
+- Use Streamlit for the dashboard unless otherwise specified.
+- Use Pydantic for schemas.
+- Use SQLModel or SQLAlchemy for database models.
+- Use pytest for tests.
+- Use Docker Compose for reproducible local deployment.
+- Keep OpenAI API calls isolated in a dedicated llm module.
+- Never hard-code secrets.
+- Use .env.example for configuration documentation.
 
-## Repository expectations
+## AI Analysis Standards
 
-- Add or update tests for new behavior.
-- Run pytest before considering work complete.
-- Update README when changing user-facing commands.
-- Keep OpenAI API calls isolated in one module.
-- Never hard-code API keys.
-- Use `.env.example` for environment variable documentation.
+- Prefer structured JSON outputs.
+- Validate all LLM outputs with Pydantic.
+- Every sentiment, viewpoint, and risk conclusion must include source IDs.
+- Keep prompt templates versioned.
+- Include mock mode for tests.
+- Log model name, prompt version, token usage, and analysis run ID.
 
-## Product constraints
+## Research Standards
 
-- Start with local sample data.
-- Do not implement complex scraping in the MVP.
-- Do not add a web dashboard until the CLI pipeline works.
-- Keep each analysis output traceable to source article/comment IDs.
+The project should include:
+- research questions
+- methodology documentation
+- baseline comparison
+- evaluation dataset
+- evaluation metrics
+- error analysis
+- limitations section
 
-## Report requirements
+## Pull Request Standards
 
-The daily report should include:
-1. Executive summary
-2. Data overview
-3. Key news summary
-4. Major public viewpoints
-5. Sentiment distribution
-6. Risk analysis
-7. Actionable recommendations
-8. Appendix / limitations
+Each PR must:
+- implement one coherent module
+- include or update tests
+- update README/docs if behavior changes
+- pass pytest
+- summarize changed files
+- include commands run
+- include known limitations
 
-## Definition of done
+## Review Guidelines
 
-A milestone is done only when:
-- the relevant CLI command works
-- pytest passes
-- generated files are saved in the expected location
-- README or docs are updated if needed
-- the final response summarizes changed files and validation results
+When reviewing, check:
+- missing tests
+- broken CLI/API behavior
+- unvalidated LLM outputs
+- lack of source traceability
+- hard-coded secrets
+- over-engineering
+- unclear documentation
