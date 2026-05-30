@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{{ context.title }}</title>
+  <style>
+    body { font-family: Arial, "Microsoft YaHei", sans-serif; line-height: 1.6; margin: 32px; color: #1f2937; }
+    h1, h2, h3 { color: #111827; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f3f4f6; }
+    .meta { color: #4b5563; }
+    .metric { display: inline-block; margin-right: 18px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>{{ context.title }}</h1>
+  <p class="meta">生成日期：{{ context.report_date.isoformat() }} · 分析运行：{{ context.analysis_run.id }} · 模型：{{ context.analysis_run.provider }} / {{ context.analysis_run.model_name }}</p>
+
+  <h2>摘要</h2>
+  <p>{{ context.summary }}</p>
+  <p>
+    <span class="metric">平均风险分：{{ "%.2f"|format(context.average_risk_score) }}</span>
+    <span class="metric">负面情绪数量：{{ context.negative_sentiment_count }}</span>
+    <span class="metric">风险条目：{{ context.risks|length }}</span>
+    <span class="metric">主题条目：{{ context.topics|length }}</span>
+  </p>
+
+  <h2>风险排行</h2>
+  {% if context.risks %}
+  <table>
+    <thead><tr><th>类别</th><th>等级</th><th>确定性评分</th><th>不确定性</th><th>证据</th></tr></thead>
+    <tbody>
+    {% for risk in context.risks %}
+      <tr>
+        <td>{{ risk.category }}</td>
+        <td>{{ risk.severity }}</td>
+        <td>{{ "%.2f"|format(risk.deterministic_score) }}</td>
+        <td>{{ "%.2f"|format(risk.uncertainty_score) }}</td>
+        <td>{{ risk.evidence_ids|join(", ") }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>暂无风险条目。</p>
+  {% endif %}
+
+  <h2>主题与观点</h2>
+  {% for topic in context.topics %}
+  <h3>{{ topic.topic }}</h3>
+  <p>{{ topic.summary }}</p>
+  <p>关键词：{{ topic.keywords|join("、") }}</p>
+  <p>趋势说明：{{ topic.trend_explanation or "暂无" }}</p>
+  {% endfor %}
+  {% for viewpoint in context.viewpoints %}
+  <h3>{{ viewpoint.title }}</h3>
+  <p>{{ viewpoint.summary }}</p>
+  <p>立场：{{ viewpoint.stance }}；覆盖度：{{ "%.2f"|format(viewpoint.prevalence_score) }}</p>
+  {% endfor %}
+
+  <h2>建议动作</h2>
+  {% if context.recommendations %}
+  <ul>
+  {% for recommendation in context.recommendations %}
+    <li>[{{ recommendation.priority }}] {{ recommendation.action }}（责任角色：{{ recommendation.responsible_role }}；预期效果：{{ recommendation.expected_effect }}）</li>
+  {% endfor %}
+  </ul>
+  {% else %}
+  <p>暂无建议动作。</p>
+  {% endif %}
+
+  <h2>证据追溯</h2>
+  {% if context.evidence %}
+  <table>
+    <thead><tr><th>ID</th><th>类型</th><th>标题</th><th>互动</th><th>摘要</th></tr></thead>
+    <tbody>
+    {% for item in context.evidence %}
+      <tr>
+        <td>{{ item.evidence_id }}</td>
+        <td>{{ item.entity_type }}</td>
+        <td>{{ item.title or "-" }}</td>
+        <td>{{ item.engagement_score }}</td>
+        <td>{{ item.text }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>暂无证据。</p>
+  {% endif %}
+</body>
+</html>

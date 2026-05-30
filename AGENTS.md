@@ -1,90 +1,38 @@
-# AGENTS.md
+# Agent Guide
 
-## Project Goal
+This project is a staged master's-level public opinion monitoring system. Preserve the architecture even when implementing small PRs.
 
-This repository implements a master's-level LLM-enhanced Public Opinion Monitoring and Daily Risk Report Generation System.
+## Development Rules
 
-The project is not a toy MVP. It should be a complete, usable, well-documented, and evaluable system.
+- Keep PRs small but meaningful.
+- Update tests and docs whenever behavior changes.
+- Do not hard-code secrets or credentials.
+- Do not import provider SDKs outside `app/llm`.
+- Keep generated runtime data out of Git.
+- Prefer typed schemas, explicit evidence IDs, and deterministic mock behavior in tests.
 
-## Core Requirements
+## Project Boundaries
 
-The system must support:
-- multi-source data ingestion
-- data cleaning and deduplication
-- persistent storage
-- LLM-based structured analysis
-- sentiment analysis
-- viewpoint extraction
-- risk classification and scoring
-- evidence traceability
-- Markdown, HTML, and PDF report generation
-- dashboard visualization
-- scheduled daily execution
-- evaluation suite
-- reproducible deployment
+- Backend API code belongs in `app/api`.
+- Runtime settings and logging belong in `app/core`.
+- Persistence setup and SQLModel models belong in `app/db`.
+- Future ingestion connectors belong in `app/ingestion`.
+- Future cleaning, dedupe, and quality checks belong in `app/preprocessing`.
+- Future OpenAI calls must go through `app/llm`.
+- Future report assembly and exporters belong in `app/reporting`.
+- Evaluation datasets, metrics, and report generation belong in `app/evaluation`.
 
-## Engineering Standards
+## PR #1 Expectations
 
-- Use Python 3.11+.
-- Use FastAPI for backend APIs.
-- Use Streamlit for the dashboard unless otherwise specified.
-- Use Pydantic for schemas.
-- Use SQLModel or SQLAlchemy for database models.
-- Use pytest for tests.
-- Use Docker Compose for reproducible local deployment.
-- Keep OpenAI API calls isolated in a dedicated `app/llm` module.
-- Never hard-code secrets.
-- Use `.env.example` for configuration documentation.
-- Prefer modular packages over one-off scripts.
-- Keep deterministic mock paths for tests.
+PR #1 is a foundation slice. It should prove the project can start, test, and support the full roadmap. It must not implement real scraping, real LLM calls, or PDF export.
 
-## Repository Layout Standards
+## Verification
 
-- `app/` contains backend, pipeline, schemas, persistence, and analysis modules.
-- `dashboard/` contains Streamlit pages and components.
-- `docs/` contains architecture, PRD, methodology, deployment, and evaluation documentation.
-- `tests/` contains pytest unit and integration tests.
-- `data/` and `reports/` may contain `.gitkeep` placeholders, but generated runtime artifacts should not be committed unless explicitly documented as fixtures.
+Run when dependencies are installed:
 
-## AI Analysis Standards
+```bash
+ruff check .
+pytest
+python -m compileall app tests dashboard
+```
 
-- Prefer structured JSON outputs.
-- Validate all LLM outputs with Pydantic.
-- Every sentiment, viewpoint, and risk conclusion must include source IDs.
-- Keep prompt templates versioned.
-- Include mock mode for tests.
-- Log model name, prompt version, token usage, and analysis run ID.
-- Do not implement provider-specific LLM calls outside `app/llm`.
-
-## Research Standards
-
-The project should include:
-- research questions
-- methodology documentation
-- baseline comparison
-- evaluation dataset
-- evaluation metrics
-- error analysis
-- limitations section
-
-## Pull Request Standards
-
-Each PR must:
-- implement one coherent module or foundation slice
-- include or update tests
-- update README/docs if behavior changes
-- pass pytest
-- summarize changed files
-- include commands run
-- include known limitations
-
-## Review Guidelines
-
-When reviewing, check:
-- missing tests
-- broken CLI/API behavior
-- unvalidated LLM outputs
-- lack of source traceability
-- hard-coded secrets
-- over-engineering
-- unclear documentation

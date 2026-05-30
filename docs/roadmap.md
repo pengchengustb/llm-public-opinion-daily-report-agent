@@ -1,49 +1,61 @@
-# Implementation Roadmap
+# Roadmap
 
-## PR 1: Foundation
+## PR #1: Project Foundation
 
-Backend skeleton, dashboard skeleton, database models, settings, logging, tests, Docker Compose, CI, README, PRD, architecture docs, and contributor instructions.
+Create packaging, FastAPI skeleton, Streamlit skeleton, database config, initial schemas, configuration/logging, pytest, Docker Compose, CI, README, documentation, and agent guidance.
 
-## PR 2: Ingestion
+Status: implemented on `codex/project-foundation`.
 
-Connector abstraction, local JSON ingestion, RSS ingestion, raw document persistence, fixtures, and tests.
+## PR #2: Persistence And Domain Models
 
-## PR 3: Preprocessing
+Complete SQLModel schema, repository/session helpers, seed samples, and persistence tests.
 
-Cleaning, normalization, hashing, deduplication, processed document persistence, and tests.
+Status: implemented on `codex/persistence-domain-models`.
 
-## PR 4: LLM Abstraction
+## PR #3: Ingestion And Preprocessing
 
-Provider boundary, mock client, prompt versions, structured parser, token/model logging, and tests.
+Add local JSON/CSV ingestion, RSS ingestion, connector interface, validation, cleaning, dedupe, optional language detection, and data quality summaries.
 
-## PR 5: Structured Analysis
+Status: implemented on `codex/ingestion-preprocessing`.
 
-Sentiment, viewpoint, risk extraction, evidence traceability, validated persistence, and tests.
+## PR #4: LLM Client And Structured Analysis
 
-## PR 6: Risk Scoring and Trends
+Add OpenAI client abstraction, mock client fixtures, prompt templates, structured sentiment/viewpoint/topic/risk/recommendation services, and mock-mode tests.
 
-Risk formula, trend aggregation, risk ranking, source-backed explanations, and tests.
+Status: implemented on `codex/llm-structured-analysis`.
 
-## PR 7: Reporting
+## PR #5: Risk Scoring And Trend Analysis
 
-Markdown and HTML reports, templates, report artifacts, and deterministic output tests.
+Implement deterministic risk scoring, topic growth, high-engagement negative comment handling, sensitive-topic scoring, uncertainty scoring, and explanations.
 
-## PR 8: PDF Export
+Status: implemented on `codex/risk-scoring-trends`.
 
-PDF rendering and artifact validation.
+## PR #6: Report Generation
 
-## PR 9: FastAPI Resources
+Add daily report assembly, Jinja2 templates, Markdown/HTML export, PDF export selection, archive management, and traceability checks.
 
-Routes for sources, documents, analysis runs, risks, and reports.
+Status: implemented for Markdown/HTML archive generation and traceability checks. PDF export remains deferred until templates stabilize.
 
-## PR 10: Dashboard Expansion
+## PR #7: Dashboard
 
-Risk overview, source explorer, evidence drill-down, analysis runs, and report archive.
+Build date selector, sentiment charts, topic ranking, risk ranking, representative evidence, run status, and report download views.
 
-## PR 11: Scheduling
+Status: implemented with a FastAPI summary endpoint and Streamlit dashboard views for completed mock-analysis workflows.
 
-Daily CLI pipeline, scheduler integration, idempotent runs, and Docker service support.
+## PR #8: Automation
 
-## PR 12+: Evaluation and Research Docs
+Add daily scheduled command, structured logs, failure handling, reproducible commands, and Docker documentation.
 
-Gold dataset, baselines, metrics, error analysis, methodology, limitations, and final deployment docs.
+Status: implemented as a reproducible `python -m app run-daily` workflow with structured JSON logs and failed-step reporting. External scheduling remains deployment-specific.
+
+## PR #9: Evaluation Suite
+
+Implement benchmark runners, metric calculations, sample gold datasets, `evaluation_report.md`, and CI-friendly mock evaluation.
+
+Status: implemented for deterministic mock benchmarks, persisted metrics, JSON artifacts, and `evaluation_report.md`.
+
+## PR #10: Hardening And Portfolio Polish
+
+Improve docs, examples, screenshots, error handling, deployment notes, and final validation checklist.
+
+Status: implemented with a final `validate-demo` workflow, portfolio demo guide, and final validation checklist. Screenshots can be captured from the running Streamlit dashboard as presentation assets.

@@ -1,39 +1,50 @@
-"""FastAPI application entrypoint."""
+"""FastAPI application factory."""
 
-import uvicorn
+from __future__ import annotations
+
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes.health import router as health_router
-from app.config.settings import get_settings
-from app.db.session import init_db
-from app.utils.logging import configure_logging
+from app.api.router import api_router
+from app.core.config import Settings, get_settings
+from app.core.logging import configure_logging
+from app.db.session import create_db_and_tables
 
 
-def create_app() -> FastAPI:
-    """Create and configure the backend application."""
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    settings: Settings = app.state.settings
+    if settings.create_db_on_startup:
+        create_db_and_tables(settings)
+    yield
 
-    settings = get_settings()
-    configure_logging(settings)
+
+def create_app(settings: Settings | None = None) -> FastAPI:
+    resolved_settings = settings or get_settings()
+    configure_logging(resolved_settings.log_level)
 
     app = FastAPI(
-        title=settings.app_name,
-        version=settings.app_version,
+        title=resolved_settings.app_name,
+        version=resolved_settings.app_version,
         description="Backend API for public opinion monitoring and daily risk reporting.",
+        lifespan=lifespan,
     )
-    app.include_router(health_router)
+    app.state.settings = resolved_settings
 
-    @app.on_event("startup")
-    def on_startup() -> None:
-        init_db()
+    if resolved_settings.backend_cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=resolved_settings.backend_cors_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
+    app.include_router(api_router)
     return app
 
 
 app = create_app()
-
-
-def run() -> None:
-    """Run the backend with uvicorn for local script entrypoints."""
-
-    settings = get_settings()
-    uvicorn.run("app.main:app", host=settings.api_host, port=settings.api_port, reload=False)
