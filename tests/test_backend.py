@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import shutil
-from pathlib import Path
-
 import pytest
 
 pytest.importorskip("fastapi")
@@ -31,17 +28,10 @@ def test_health_endpoint_returns_service_metadata() -> None:
     assert payload["environment"] == "local"
 
 
-def test_database_startup_creates_missing_sqlite_parent_directory() -> None:
-    runtime_dir = Path("data/generated/test-db-startup")
+def test_database_startup_creates_missing_sqlite_parent_directory(tmp_path) -> None:
+    runtime_dir = tmp_path / "test-db-startup"
     database_path = runtime_dir / "nested" / "opinion.db"
 
-    if runtime_dir.exists():
-        shutil.rmtree(runtime_dir)
+    create_db_and_tables(Settings(database_url=f"sqlite:///{database_path}"))
 
-    try:
-        create_db_and_tables(Settings(database_url=f"sqlite:///{database_path}"))
-
-        assert database_path.exists()
-    finally:
-        if runtime_dir.exists():
-            shutil.rmtree(runtime_dir)
+    assert database_path.exists()
