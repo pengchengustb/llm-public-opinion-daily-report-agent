@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
+from pathlib import Path
 
 import uvicorn
 
@@ -44,6 +46,83 @@ def build_parser() -> argparse.ArgumentParser:
     )
     score_parser.add_argument("--analysis-run-id", default=None, help="Analysis run to score.")
 
+    report_parser = subparsers.add_parser(
+        "generate-report",
+        help="Generate Markdown and HTML daily reports from persisted analysis outputs.",
+    )
+    report_parser.add_argument("--analysis-run-id", default=None, help="Analysis run to report.")
+    report_parser.add_argument(
+        "--date",
+        dest="report_date",
+        default=None,
+        help="Report date in YYYY-MM-DD format. Defaults to today.",
+    )
+    report_parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directory for generated report artifacts. Defaults to REPORT_OUTPUT_DIR.",
+    )
+
+    daily_parser = subparsers.add_parser(
+        "run-daily",
+        help="Run the reproducible daily seed/ingest/analyze/score/report workflow.",
+    )
+    daily_parser.add_argument(
+        "--date",
+        dest="report_date",
+        default=None,
+        help="Report date in YYYY-MM-DD format. Defaults to today.",
+    )
+    daily_parser.add_argument(
+        "--ingest-local",
+        dest="ingest_paths",
+        action="append",
+        default=[],
+        help="Local JSON, CSV, RSS, or XML file to ingest before analysis. Repeatable.",
+    )
+    daily_parser.add_argument(
+        "--seed-sample",
+        action="store_true",
+        help="Load deterministic sample data before analysis.",
+    )
+    daily_parser.add_argument(
+        "--limit",
+        type=int,
+        default=50,
+        help="Maximum articles/comments to analyze.",
+    )
+
+    eval_parser = subparsers.add_parser(
+        "evaluate-mock",
+        help="Run deterministic mock evaluation and write evaluation artifacts.",
+    )
+    eval_parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directory for evaluation artifacts. Defaults to REPORT_OUTPUT_DIR/evaluation.",
+    )
+
+    validate_parser = subparsers.add_parser(
+        "validate-demo",
+        help="Run the final deterministic demo validation workflow.",
+    )
+    validate_parser.add_argument(
+        "--date",
+        dest="report_date",
+        default=None,
+        help="Report date in YYYY-MM-DD format. Defaults to today.",
+    )
+    validate_parser.add_argument(
+        "--skip-seed-sample",
+        action="store_true",
+        help="Do not load deterministic sample data before validation.",
+    )
+    validate_parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Directory for final validation reports. Defaults to REPORT_OUTPUT_DIR/validation.",
+    )
+
     subparsers.add_parser("doctor", help="Print resolved runtime configuration.")
     return parser
 
@@ -83,8 +162,6 @@ def main() -> None:
         return
 
     if args.command == "ingest-local":
-        from pathlib import Path
-
         from sqlmodel import Session
 
         from app.db.session import create_database_engine, create_db_and_tables
@@ -155,3 +232,124 @@ def main() -> None:
             "Deterministic risk scoring complete: "
             f"risks={len(risks)} scores={[risk.deterministic_score for risk in risks]}"
         )
+        return
+
+    if args.command == "generate-report":
+        from sqlmodel import Session
+
+        from app.db.session import create_database_engine, create_db_and_tables
+        from app.reporting.service import ReportGenerationService
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        report_date = date.fromisoformat(args.report_date) if args.report_date else None
+        output_dir = Path(args.output_dir) if args.output_dir else None
+        try:
+            with Session(engine) as session:
+                artifacts = ReportGenerationService(
+                    session,
+                    settings,
+                    output_dir=output_dir,
+                ).generate_daily_report(
+                    report_date=report_date,
+                    analysis_run_id=args.analysis_run_id,
+                )
+        finally:
+            engine.dispose()
+        print(
+            "Daily report generated: "
+            f"report_id={artifacts.report.id} markdown={artifacts.markdown_path} "
+            f"html={artifacts.html_path}"
+        )
+        return
+
+    if args.command == "run-daily":
+        from sqlmodel import Session
+
+        from app.automation.daily import AutomationRunError, DailyAutomationService
+        from app.db.session import create_database_engine, create_db_and_tables
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        report_date = date.fromisoformat(args.report_date) if args.report_date else date.today()
+        ingest_paths = [Path(path) for path in args.ingest_paths]
+        try:
+            with Session(engine) as session:
+                result = DailyAutomationService(session, settings).run(
+                    report_date=report_date,
+                    ingest_paths=ingest_paths,
+                    seed_sample=args.seed_sample,
+                    analysis_limit=args.limit,
+                )
+        except AutomationRunError as exc:
+            result = exc.result
+            print(
+                "Daily workflow failed: "
+                f"steps={[(step.name, step.status) for step in result.steps]} "
+                f"log={result.log_path}"
+            )
+            raise SystemExit(1) from exc
+        finally:
+            engine.dispose()
+        print(
+            "Daily workflow complete: "
+            f"analysis_run_id={result.analysis_run_id} report_id={result.report_id} "
+            f"markdown={result.markdown_path} html={result.html_path} log={result.log_path}"
+        )
+        return
+
+    if args.command == "evaluate-mock":
+        from sqlmodel import Session
+
+        from app.db.session import create_database_engine, create_db_and_tables
+        from app.evaluation.service import EvaluationService
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        output_dir = Path(args.output_dir) if args.output_dir else None
+        try:
+            with Session(engine) as session:
+                artifacts = EvaluationService(
+                    session,
+                    settings,
+                    output_dir=output_dir,
+                ).run_mock_evaluation()
+        finally:
+            engine.dispose()
+        print(
+            "Mock evaluation complete: "
+            f"evaluation_run_id={artifacts.evaluation_run.id} "
+            f"report={artifacts.report_path} metrics={artifacts.metrics_path} "
+            f"metrics={artifacts.metrics}"
+        )
+        return
+
+    if args.command == "validate-demo":
+        from sqlmodel import Session
+
+        from app.db.session import create_database_engine, create_db_and_tables
+        from app.validation.demo import DemoValidationService
+
+        create_db_and_tables(settings)
+        engine = create_database_engine(settings)
+        report_date = date.fromisoformat(args.report_date) if args.report_date else date.today()
+        output_dir = Path(args.output_dir) if args.output_dir else None
+        try:
+            with Session(engine) as session:
+                result = DemoValidationService(
+                    session,
+                    settings,
+                    output_dir=output_dir,
+                ).run(
+                    report_date=report_date,
+                    seed_sample=not args.skip_seed_sample,
+                )
+        finally:
+            engine.dispose()
+        print(
+            "Demo validation complete: "
+            f"status={result.status} report={result.validation_report_path} "
+            f"checks={[(check.name, check.status) for check in result.checks]}"
+        )
+        if result.status != "passed":
+            raise SystemExit(1)

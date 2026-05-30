@@ -1,0 +1,68 @@
+# {{ context.title }}
+
+生成日期：{{ context.report_date.isoformat() }}
+分析运行：`{{ context.analysis_run.id }}`
+模型：{{ context.analysis_run.provider }} / {{ context.analysis_run.model_name }}
+
+## 摘要
+
+{{ context.summary }}
+
+- 平均风险分：{{ "%.2f"|format(context.average_risk_score) }}
+- 负面情绪数量：{{ context.negative_sentiment_count }}
+- 风险条目：{{ context.risks|length }}
+- 主题条目：{{ context.topics|length }}
+
+## 风险排行
+
+{% if context.risks %}
+| 类别 | 等级 | 确定性评分 | 不确定性 | 证据 |
+| --- | --- | ---: | ---: | --- |
+{% for risk in context.risks %}
+| {{ risk.category }} | {{ risk.severity }} | {{ "%.2f"|format(risk.deterministic_score) }} | {{ "%.2f"|format(risk.uncertainty_score) }} | {{ risk.evidence_ids|join(", ") }} |
+{% endfor %}
+{% else %}
+暂无风险条目。
+{% endif %}
+
+## 主题与观点
+
+{% for topic in context.topics %}
+### {{ topic.topic }}
+
+{{ topic.summary }}
+
+关键词：{{ topic.keywords|join("、") }}
+
+趋势说明：{{ topic.trend_explanation or "暂无" }}
+{% endfor %}
+
+{% for viewpoint in context.viewpoints %}
+### {{ viewpoint.title }}
+
+{{ viewpoint.summary }}
+
+立场：{{ viewpoint.stance }}；覆盖度：{{ "%.2f"|format(viewpoint.prevalence_score) }}
+{% endfor %}
+
+## 建议动作
+
+{% if context.recommendations %}
+{% for recommendation in context.recommendations %}
+- [{{ recommendation.priority }}] {{ recommendation.action }}（责任角色：{{ recommendation.responsible_role }}；预期效果：{{ recommendation.expected_effect }}）
+{% endfor %}
+{% else %}
+暂无建议动作。
+{% endif %}
+
+## 证据追溯
+
+{% if context.evidence %}
+| ID | 类型 | 标题 | 互动 | 摘要 |
+| --- | --- | --- | ---: | --- |
+{% for item in context.evidence %}
+| `{{ item.evidence_id }}` | {{ item.entity_type }} | {{ item.title or "-" }} | {{ item.engagement_score }} | {{ item.text }} |
+{% endfor %}
+{% else %}
+暂无证据。
+{% endif %}

@@ -48,8 +48,8 @@ The risk layer computes deterministic scores from persisted analysis outputs and
 
 ## Dashboard
 
-Streamlit provides the analyst-facing UI. The dashboard is Chinese-facing and uses backend APIs rather than accessing provider SDKs or databases directly.
+Streamlit provides the analyst-facing UI. The dashboard is Chinese-facing and uses backend APIs rather than accessing provider SDKs or databases directly. The `/api/v1/dashboard/summary` endpoint serves date-filtered report archives plus the latest completed analysis run, including sentiment distribution, risk ranking, topic ranking, representative evidence, and run metadata.
 
 ## Reporting
 
-Later PRs will assemble report data from database records and render Markdown/HTML through Jinja2. PDF export is intentionally deferred until report templates are stable.
+The reporting layer assembles completed analysis runs with persisted risks, topics, viewpoints, recommendations, and source evidence. It validates that every referenced evidence ID resolves to an article or comment before persisting a `DailyReport`, then renders Markdown and HTML artifacts with Jinja2 into the configured report archive. PDF export is intentionally deferred until report templates are stable.

@@ -45,12 +45,44 @@ Implemented in the risk scoring slice:
 - Automatic score backfill for structured analysis runs.
 - Re-runnable scoring CLI through `python -m app score-risks`.
 
+Implemented in the report generation slice:
+
+- Daily report assembly from persisted analysis runs, risks, topics, viewpoints, recommendations, and evidence.
+- Jinja2 Markdown and HTML exports under `REPORT_OUTPUT_DIR`.
+- Evidence ID traceability checks before report persistence.
+- CLI report generation through `python -m app generate-report`.
+
+Implemented in the dashboard slice:
+
+- FastAPI dashboard summary endpoint for the latest completed analysis run.
+- Streamlit views for sentiment distribution, topic ranking, risk ranking, representative evidence, run status, and report downloads.
+- Chinese-facing dashboard copy restored to readable UTF-8 text.
+
+Implemented in the automation slice:
+
+- Reproducible daily workflow command for seed/ingest/analyze/score/report.
+- Structured per-step JSON logs for successful and failed runs.
+- Failure handling that records the failed step and replay command.
+
+Implemented in the evaluation slice:
+
+- Deterministic mock benchmark for sentiment, risk, evidence coverage, and report completeness.
+- Metric persistence through evaluation run and metric tables.
+- JSON metrics artifacts and `evaluation_report.md` generation.
+- CLI evaluation through `python -m app evaluate-mock`.
+
+Implemented in the hardening and portfolio polish slice:
+
+- Final deterministic demo validation through `python -m app validate-demo`.
+- Portfolio demo workflow and final validation checklist.
+- One-command checks for generated reports, automation logs, evaluation artifacts, and metric thresholds.
+
 Not implemented yet:
 
 - Real OpenAI calls.
-- Real scraping or RSS ingestion.
-- Full analysis, scoring, report generation, or PDF export.
-- Production dashboard charts and downloads.
+- Real web scraping beyond local files and RSS/XML feeds.
+- PDF export.
+- Production dashboard authentication and advanced drill-down workflows.
 
 ## Quickstart
 
@@ -108,6 +140,36 @@ Recompute deterministic risk scores for the latest analysis run:
 python -m app score-risks
 ```
 
+Generate Markdown and HTML daily report artifacts:
+
+```bash
+python -m app generate-report
+```
+
+Run the local daily workflow with deterministic sample data:
+
+```bash
+python -m app run-daily --seed-sample
+```
+
+Run the workflow after ingesting local files:
+
+```bash
+python -m app run-daily --ingest-local data/samples/local_articles.csv --ingest-local data/samples/rss_sample.xml
+```
+
+Run deterministic mock evaluation:
+
+```bash
+python -m app evaluate-mock
+```
+
+Run the full deterministic validation workflow:
+
+```bash
+python -m app validate-demo --date 2026-05-30
+```
+
 ## Testing And Quality
 
 ```bash
@@ -147,6 +209,7 @@ Copy `.env.example` to `.env` for local development. Important settings:
 - `LLM_MOCK_MODE`: defaults to `true`; real LLM calls are intentionally deferred.
 - `OPENAI_API_KEY`: documented but unused until the real LLM client PR.
 - `REPORT_LANGUAGE`: defaults to `zh-CN`.
+- `REPORT_OUTPUT_DIR`: defaults to `reports`.
 
 Never commit `.env` or secrets.
 
@@ -166,3 +229,4 @@ The repository is organized around stable boundaries:
 - `app/evaluation`: benchmarks and evaluation reports.
 
 See `docs/architecture.md` and `docs/roadmap.md` for the complete plan.
+See `docs/demo_workflow.md` and `docs/final_validation.md` for the portfolio demo and final validation checklist.

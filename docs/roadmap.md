@@ -34,18 +34,28 @@ Status: implemented on `codex/risk-scoring-trends`.
 
 Add daily report assembly, Jinja2 templates, Markdown/HTML export, PDF export selection, archive management, and traceability checks.
 
+Status: implemented for Markdown/HTML archive generation and traceability checks. PDF export remains deferred until templates stabilize.
+
 ## PR #7: Dashboard
 
 Build date selector, sentiment charts, topic ranking, risk ranking, representative evidence, run status, and report download views.
+
+Status: implemented with a FastAPI summary endpoint and Streamlit dashboard views for completed mock-analysis workflows.
 
 ## PR #8: Automation
 
 Add daily scheduled command, structured logs, failure handling, reproducible commands, and Docker documentation.
 
+Status: implemented as a reproducible `python -m app run-daily` workflow with structured JSON logs and failed-step reporting. External scheduling remains deployment-specific.
+
 ## PR #9: Evaluation Suite
 
 Implement benchmark runners, metric calculations, sample gold datasets, `evaluation_report.md`, and CI-friendly mock evaluation.
 
+Status: implemented for deterministic mock benchmarks, persisted metrics, JSON artifacts, and `evaluation_report.md`.
+
 ## PR #10: Hardening And Portfolio Polish
 
 Improve docs, examples, screenshots, error handling, deployment notes, and final validation checklist.
+
+Status: implemented with a final `validate-demo` workflow, portfolio demo guide, and final validation checklist. Screenshots can be captured from the running Streamlit dashboard as presentation assets.
