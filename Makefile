@@ -1,7 +1,6 @@
-.PHONY: install test lint run-api run-dashboard docker-up docker-down
+.PHONY: install test lint api dashboard compose-up compose-config
 
 install:
-	python -m pip install --upgrade pip
 	python -m pip install -e ".[dev]"
 
 test:
@@ -10,14 +9,15 @@ test:
 lint:
 	ruff check .
 
-run-api:
-	uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+api:
+	python -m app api --reload
 
-run-dashboard:
-	streamlit run dashboard/Home.py
+dashboard:
+	streamlit run dashboard/app.py
 
-docker-up:
+compose-up:
 	docker compose up --build
 
-docker-down:
-	docker compose down
+compose-config:
+	docker compose config
+

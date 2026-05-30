@@ -1,22 +1,20 @@
-"""Health check route."""
+from datetime import UTC, datetime
 
-from typing import Annotated
+from fastapi import APIRouter, Request
 
-from fastapi import APIRouter, Depends
+from app.schemas.health import HealthCheck
 
-from app.config.settings import Settings, get_settings
-from app.schemas.common import HealthResponse
-
-router = APIRouter(tags=["health"])
+router = APIRouter()
 
 
-@router.get("/health", response_model=HealthResponse)
-def health(settings: Annotated[Settings, Depends(get_settings)]) -> HealthResponse:
-    """Return basic service health and version metadata."""
-
-    return HealthResponse(
+@router.get("/health", response_model=HealthCheck)
+def health_check(request: Request) -> HealthCheck:
+    settings = request.app.state.settings
+    return HealthCheck(
         status="ok",
         service=settings.app_name,
         version=settings.app_version,
-        environment=settings.environment,
+        environment=settings.app_env,
+        timestamp=datetime.now(UTC),
     )
+
